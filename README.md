@@ -21,7 +21,7 @@ A full-stack application that analyzes religious and philosophical quotes using 
 
 - Node.js (for frontend)
 - Python 3.8+ (for backend)
-- API keys for Gemini (preferred) or OpenAI
+- API key for Gemini
 
 ### Frontend Setup
 
@@ -44,12 +44,12 @@ A full-stack application that analyzes religious and philosophical quotes using 
 
 2. Install Python dependencies:
    ```
-   pip install fastapi uvicorn sqlalchemy google-generativeai openai python-dotenv
+   pip install fastapi uvicorn sqlalchemy google-generativeai python-dotenv
    ```
 
 3. Configure API keys:
    - Rename `.env.example` to `.env`
-   - Add your Gemini API key and/or OpenAI API key to the `.env` file
+   - Add your Gemini API key to the `.env` file
 
 4. Run the backend server:
    ```
@@ -78,7 +78,7 @@ A full-stack application that analyzes religious and philosophical quotes using 
 
 - **Frontend**: Next.js, React, Tailwind CSS, shadcn/ui components
 - **Backend**: Python, FastAPI, SQLAlchemy, SQLite
-- **AI**: Google Gemini API (primary), OpenAI API (fallback)
+- **AI**: Google Gemini API
 
 ## License
 

@@ -2,7 +2,6 @@ import os
 import json
 import google.generativeai as genai
 from dotenv import load_dotenv
-import openai
 
 # Load environment variables
 load_dotenv()
@@ -13,59 +12,71 @@ if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
 
-def analyze_quote_with_gemini(quote: str, religion: str):
+def analyze_quote(quote: str, religion: str):
     """
-    Analyze a religious quote using Google's Gemini API
+    Analyze a religious quote using Google's Gemini API with optimized token usage
     """
     try:
-        # Configure the model
-        model = genai.GenerativeModel('gemini-1.5-pro')
+        # Configure the model - using gemini-1.5-flash for free tier compatibility
+        model = genai.GenerativeModel('gemini-1.5-flash')
         
-        # Construct the prompt
+        # Construct the prompt - optimized for minimal token usage
         prompt = f"""
-        You are an expert in spiritual and philosophical text interpretation. 
-        You will be given a quote, which can be in ANY language and from ANY religious or philosophical book. 
-        Your task is to analyze it strictly in the following format: 
-
-        Section 1: Input Quote & Interpretation 
-        - Show the exact input quote. 
-        - Provide a short interpretation (meaning + context of the quote, in simple language). 
-
-        Section 2: PASSIONIT PRUTL Sentiment Analysis + Emotional Mapping 
-        - Table 1 (PASSIONIT PRUTL Analysis): 
-          Columns = Positive Soul (PS), Negative Soul (NS), Positive Materialism (PM), Negative Materialism (NM). 
-          For each column: mark ✅ if present, ❌ if absent. Add a one-line justification. 
-        - Table 2 (Emotional & Philosophical Mapping): 
-          Columns = Moral Discipline, Spiritual Alignment, Mental Well-being, Practical Challenge. 
-          Fill each with a short explanation (how the quote relates to it, or ❌ if absent). 
-
-        Section 3: Final Classification & Conclusion 
-        - Identify the Primary Zone (PS, NS, PM, or NM). 
-        - Identify any Secondary Zone (if applicable, otherwise ❌). 
-        - Provide a short concluding note about what this quote teaches about life, values, or philosophy. 
-
-        ⚠️ Rules: 
-        - Always preserve the 3-section structure. 
-        - Always mark ❌ explicitly where something is absent. 
-        - Keep explanations short, clear, and meaningful. 
-        - The quote may be in any language – translate/interpret internally before analysis, but always display the original quote. 
+        Analyze this {religion} quote concisely: "{quote}"
         
-        Quote to analyze: "{quote}"
-        Religion/Tradition: {religion}
+        Format your response as JSON with these exact fields:
+        1. section1: Show original quote and 2-3 line translation/interpretation
+        2. section2: Two tables:
+           - table1: MUST be an array with exactly one object containing keys PS, NS, PM, NM (each with ✅/❌ + 1-line justification)
+           - table2: Emotional mapping with columns: Moral, Spiritual, Mental, Practical (1-line each or ❌)
+        3. section3: Primary zone (PS/NS/PM/NM), Secondary zone (or ❌), and max 4-line summary
         
-        Return your analysis in JSON format with the following structure:
-        {{
-            "section1": "...",
-            "section2": {{
-                "table1": [...],
-                "table2": [...]
-            }},
-            "section3": "..."
-        }}
+        Example for table1 format:
+        "table1": [
+          {
+            "PS": "✅ Promotes spiritual growth",
+            "NS": "❌ No negative spiritual elements",
+            "PM": "✅ Encourages practical action",
+            "NM": "❌ No materialistic focus"
+          }
+        ]
+        
+        Keep all explanations extremely concise (1-2 lines max per item).
+        Return only valid JSON.
         """
         
-        # Generate response
-        response = model.generate_content(prompt)
+        # Generate response with minimal safety settings for token efficiency
+        safety_settings = [
+            {
+                "category": "HARM_CATEGORY_HARASSMENT",
+                "threshold": "BLOCK_ONLY_HIGH"
+            },
+            {
+                "category": "HARM_CATEGORY_HATE_SPEECH",
+                "threshold": "BLOCK_ONLY_HIGH"
+            },
+            {
+                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                "threshold": "BLOCK_ONLY_HIGH"
+            },
+            {
+                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                "threshold": "BLOCK_ONLY_HIGH"
+            }
+        ]
+        
+        generation_config = {
+            "temperature": 0.7,
+            "top_p": 0.95,
+            "top_k": 40,
+            "max_output_tokens": 1024,
+        }
+        
+        response = model.generate_content(
+            prompt,
+            generation_config=generation_config,
+            safety_settings=safety_settings
+        )
         
         # Extract and parse JSON from the response
         response_text = response.text
@@ -90,31 +101,3 @@ def analyze_quote_with_gemini(quote: str, religion: str):
     except Exception as e:
         print(f"Error in Gemini API call: {str(e)}")
         return None
-
-
-# Fallback to OpenAI if Gemini is not available
-def analyze_quote_with_openai(quote: str, religion: str):
-    """
-    Fallback function to analyze a religious quote using OpenAI API
-    """
-    try:
-        # This is a placeholder for OpenAI implementation
-        # In a real implementation, you would use the OpenAI API here
-        print("Gemini API not available, would use OpenAI as fallback")
-        return None
-    except Exception as e:
-        print(f"Error in OpenAI API call: {str(e)}")
-        return None
-
-
-def analyze_quote(quote: str, religion: str):
-    """
-    Main function to analyze a quote, trying Gemini first and falling back to OpenAI
-    """
-    if GEMINI_API_KEY:
-        result = analyze_quote_with_gemini(quote, religion)
-        if result:
-            return result
-    
-    # Fallback to OpenAI or other implementation
-    return analyze_quote_with_openai(quote, religion)
