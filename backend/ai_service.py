@@ -24,25 +24,27 @@ def analyze_quote(quote: str, religion: str):
         prompt = f"""
         Analyze this {religion} quote concisely: "{quote}"
         
-        Format your response as JSON with these exact fields:
-        1. section1: Show original quote and 2-3 line translation/interpretation
-        2. section2: Two tables:
-           - table1: MUST be an array with exactly one object containing keys PS, NS, PM, NM (each with ✅/❌ + 1-line justification)
-           - table2: Emotional mapping with columns: Moral, Spiritual, Mental, Practical (1-line each or ❌)
-        3. section3: Primary zone (PS/NS/PM/NM), Secondary zone (or ❌), and max 4-line summary
-        
-        Example for table1 format:
+        Format your response as a single, valid JSON object with these exact fields:
+        1.  "section1": A single HTML string. It MUST contain a `<blockquote>` element for the original quote and a `<p>` element for the 2-3 line interpretation.
+        2.  "section2": An object containing two fields: "table1" and "table2".
+            - "table1": MUST be an array with exactly one object. This object must have keys "PS", "NS", "PM", and "NM". The values for each key must be a string starting with an emoji (✅ or ❌) followed by a 1-line justification.
+            - "table2": MUST be an array with exactly one object, mapping emotional aspects. This object must have keys "Moral", "Spiritual", "Mental", and "Practical". The values should be a concise 1-line explanation or a ❌ emoji.
+        3.  "section3": A single HTML string. It MUST contain `<h4>` tags for "Primary Zone" and "Secondary Zone", and a `<p>` tag for the final 4-line (max) summary. Crucially, if the quote is from a major religious scripture (e.g., Bible, Quran, Bhagavad Gita), the summary must begin by identifying the source (book, chapter, verse).
+
+        Example for "table1" format:
         "table1": [
-          {
-            "PS": "✅ Promotes spiritual growth",
-            "NS": "❌ No negative spiritual elements",
-            "PM": "✅ Encourages practical action",
-            "NM": "❌ No materialistic focus"
-          }
+          {{
+            "PS": "✅ Promotes spiritual growth by emphasizing...",
+            "NS": "❌ Does not contain negative spiritual elements because...",
+            "PM": "✅ Encourages practical, positive actions through...",
+            "NM": "❌ Avoids focus on materialistic loss or gain."
+          }}
         ]
-        
-        Keep all explanations extremely concise (1-2 lines max per item).
-        Return only valid JSON.
+
+        Example for "section3" format:
+        "section3": "<h4>Primary Zone</h4><p>Positive Soul (PS)</p><h4>Secondary Zone</h4><p>Positive Materialism (PM)</p><p>This quote primarily focuses on spiritual growth and encourages positive actions in the material world, aligning with a constructive and hopeful worldview.</p>"
+
+        Ensure all explanations are extremely concise. Return only the raw JSON object, without any markdown formatting like ```json.
         """
         
         # Generate response with minimal safety settings for token efficiency

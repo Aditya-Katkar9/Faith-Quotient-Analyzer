@@ -4,10 +4,21 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Heart, Brain, Sparkles, TrendingUp, BookOpen, Lightbulb, Target, Globe, Menu, X, Loader2 } from "lucide-react"
-import { QuadrantChart } from "@/components/quadrant-chart"
+import {
+  Heart,
+  Brain,
+  Sparkles,
+  TrendingUp,
+  BookOpen,
+  Lightbulb,
+  Target,
+  Globe,
+  Menu,
+  X,
+  Loader2,
+  Star,
+} from "lucide-react"
 
 interface AnalysisResponse {
   quote: string
@@ -33,13 +44,13 @@ export default function FaithAnalyzer() {
 
   const religionOptions = [
     { value: "none", label: "Select Religion (Optional)" },
-    { value: "christianity", label: "Christianity" },
+    { value: "hinduism", label: "Hinduism" },
+    { value: "jainism", label: "Jainism" },
     { value: "islam", label: "Islam" },
     { value: "judaism", label: "Judaism" },
-    { value: "hinduism", label: "Hinduism" },
     { value: "buddhism", label: "Buddhism" },
     { value: "sikhism", label: "Sikhism" },
-    { value: "jainism", label: "Jainism" },
+    { value: "christianity", label: "Christianity" },
     { value: "other", label: "Other/Universal" },
   ]
 
@@ -48,7 +59,8 @@ export default function FaithAnalyzer() {
 
     const handleScroll = () => {
       const scrollY = window.scrollY
-      const heroHeight = document.getElementById("hero")?.offsetHeight || 0
+      const heroSection = document.getElementById("hero")
+      const heroHeight = heroSection?.offsetHeight || 0
 
       setNavbarOnWhite(scrollY > heroHeight - 100)
     }
@@ -57,41 +69,41 @@ export default function FaithAnalyzer() {
 
     const observerOptions = {
       threshold: 0.1,
-      rootMargin: "0px 0px -100px 0px",
+      rootMargin: "0px 0px -50px 0px",
     }
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
+        const element = entry.target as HTMLElement
+        const staggerElements = element.querySelectorAll(".stagger-child")
+
         if (entry.isIntersecting) {
-          const element = entry.target as HTMLElement
+          // Reset animations first
+          element.classList.remove("animate-fade-in-up")
+          staggerElements.forEach((child) => {
+            child.classList.remove("animate-fade-in-up")
+          })
 
-          if (element.classList.contains("slide-up")) {
-            element.classList.add("animate-slide-up")
-          } else if (element.classList.contains("slide-left")) {
-            element.classList.add("animate-slide-left")
-          } else if (element.classList.contains("slide-right")) {
-            element.classList.add("animate-slide-right")
-          } else if (element.classList.contains("zoom-in")) {
-            element.classList.add("animate-zoom-in")
-          } else if (element.classList.contains("rotate-in")) {
-            element.classList.add("animate-rotate-in")
-          } else {
-            element.classList.add("animate-in")
-          }
-
-          const staggerElements = element.querySelectorAll(".stagger-child")
-          staggerElements.forEach((child, index) => {
-            setTimeout(() => {
-              child.classList.add("animate-in")
-            }, index * 150)
+          // Trigger animations with slight delay
+          setTimeout(() => {
+            element.classList.add("animate-fade-in-up")
+            staggerElements.forEach((child, index) => {
+              setTimeout(() => {
+                child.classList.add("animate-fade-in-up")
+              }, index * 200)
+            })
+          }, 100)
+        } else {
+          // Remove animations when element leaves viewport
+          element.classList.remove("animate-fade-in-up")
+          staggerElements.forEach((child) => {
+            child.classList.remove("animate-fade-in-up")
           })
         }
       })
     }, observerOptions)
 
-    const animateElements = document.querySelectorAll(
-      ".animate-on-scroll, .slide-up, .slide-left, .slide-right, .zoom-in, .rotate-in",
-    )
+    const animateElements = document.querySelectorAll(".animate-on-scroll")
     animateElements.forEach((el) => observer.observe(el))
 
     return () => {
@@ -103,45 +115,11 @@ export default function FaithAnalyzer() {
   const smoothScrollTo = (elementId: string) => {
     const element = document.getElementById(elementId)
     if (element) {
-      const navLinks = document.querySelectorAll('a[href^="#"], button[onclick*="smoothScrollTo"]')
-      navLinks.forEach((link) => link.classList.remove("nav-active"))
-
-      const clickedLink =
-        document.querySelector(`button[onclick*="${elementId}"]`) || document.querySelector(`a[href="#${elementId}"]`)
-      if (clickedLink) {
-        clickedLink.classList.add("nav-active")
-        setTimeout(() => {
-          clickedLink.classList.remove("nav-active")
-        }, 1000)
-      }
-
-      const currentSection = document.querySelector(".section-active")
-      if (currentSection) {
-        currentSection.classList.add("slide-out-left")
-        currentSection.classList.remove("section-active")
-      }
-
       element.scrollIntoView({
         behavior: "smooth",
         block: "start",
       })
-
       setMobileMenuOpen(false)
-
-      setTimeout(() => {
-        element.classList.add("slide-in-right", "section-active")
-        element.classList.add("section-highlight")
-
-        setTimeout(() => {
-          element.classList.remove("slide-in-right")
-          element.classList.remove("section-highlight")
-
-          const allSections = document.querySelectorAll("section")
-          allSections.forEach((section) => {
-            section.classList.remove("slide-out-left")
-          })
-        }, 1000)
-      }, 100)
     }
   }
 
@@ -155,7 +133,7 @@ export default function FaithAnalyzer() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           quote: quote.trim(),
-          religion: selectedReligion === "none" ? "other" : selectedReligion || "other", // Include selected religion in API call
+          religion: selectedReligion === "none" ? "other" : selectedReligion || "other",
         }),
       })
 
@@ -166,8 +144,7 @@ export default function FaithAnalyzer() {
 
       const data = await response.json()
       setAnalysisResult(data)
-      
-      // Scroll to results section
+
       const resultsSection = document.getElementById("results")
       if (resultsSection) {
         resultsSection.scrollIntoView({ behavior: "smooth" })
@@ -182,75 +159,256 @@ export default function FaithAnalyzer() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
+      {/* Navigation Bar */}
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          navbarOnWhite ? "bg-white/20 backdrop-blur-md shadow-lg" : "bg-transparent"
+        }`}
+      >
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div className="flex items-center space-x-2">
+              <Heart
+                className={`h-6 w-6 transition-colors duration-300 ${navbarOnWhite ? "text-purple-600" : "text-white"}`}
+              />
+              <span
+                className={`text-xl font-bold transition-colors duration-300 ${navbarOnWhite ? "text-purple-900" : "text-white"}`}
+              >
+                FAITHFLOW
+              </span>
+            </div>
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-8">
+              <button
+                onClick={() => smoothScrollTo("hero")}
+                className={`transition-all duration-300 hover:scale-105 font-medium ${
+                  navbarOnWhite ? "text-purple-800 hover:text-purple-600" : "text-white hover:text-purple-300"
+                }`}
+              >
+                Home
+              </button>
+              <button
+                onClick={() => smoothScrollTo("features")}
+                className={`transition-all duration-300 hover:scale-105 font-medium ${
+                  navbarOnWhite ? "text-purple-800 hover:text-purple-600" : "text-white hover:text-purple-300"
+                }`}
+              >
+                Features
+              </button>
+              <button
+                onClick={() => smoothScrollTo("analyzer")}
+                className={`transition-all duration-300 hover:scale-105 font-medium ${
+                  navbarOnWhite ? "text-purple-800 hover:text-purple-600" : "text-white hover:text-purple-300"
+                }`}
+              >
+                Analyzer
+              </button>
+              <button
+                onClick={() => smoothScrollTo("about")}
+                className={`transition-all duration-300 hover:scale-105 font-medium ${
+                  navbarOnWhite ? "text-purple-800 hover:text-purple-600" : "text-white hover:text-purple-300"
+                }`}
+              >
+                About
+              </button>
+            </div>
+
+            {/* Right side icons */}
+            <div className="hidden md:flex items-center space-x-4"></div>
+
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={`md:hidden ${navbarOnWhite ? "text-purple-800" : "text-white"}`}
+            >
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
+
+          {/* Mobile Navigation */}
+          {mobileMenuOpen && (
+            <div className="md:hidden bg-white/95 backdrop-blur-sm rounded-lg mt-2 p-4 shadow-lg">
+              <div className="flex flex-col space-y-4">
+                <button
+                  onClick={() => smoothScrollTo("hero")}
+                  className="text-gray-700 hover:text-purple-600 transition-colors text-left"
+                >
+                  Home
+                </button>
+                <button
+                  onClick={() => smoothScrollTo("features")}
+                  className="text-gray-700 hover:text-purple-600 transition-colors text-left"
+                >
+                  Features
+                </button>
+                <button
+                  onClick={() => smoothScrollTo("analyzer")}
+                  className="text-gray-700 hover:text-purple-600 transition-colors text-left"
+                >
+                  Analyzer
+                </button>
+                <button
+                  onClick={() => smoothScrollTo("about")}
+                  className="text-gray-700 hover:text-purple-600 transition-colors text-left"
+                >
+                  About
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </nav>
+
       {/* Hero Section */}
       <section
         id="hero"
         className={`relative min-h-screen flex items-center justify-center overflow-hidden ${isVisible ? "opacity-100" : "opacity-0"} transition-opacity duration-1000`}
       >
         <div className="absolute inset-0 z-0">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-            poster="/placeholder.jpg"
-          >
-            <source src="/BG%20Faith%20Video.mp4" type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-purple-900/40 backdrop-blur-sm"></div>
+          <div className="w-full h-full bg-gradient-to-br from-purple-900 via-purple-800 to-purple-700"></div>
+          <div className="absolute inset-0 bg-black/20"></div>
         </div>
 
         <div className="container relative z-10 px-4 py-32 text-center text-white">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
-            Faith Quotient Analyzer
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in-up">
+            Transform Your
+            <br />
+            <span className="text-purple-300">Spiritual Journey</span>
           </h1>
-          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto animate-fade-in delay-300">
-            Discover the spiritual depth and meaning behind religious texts and quotes
+          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto animate-fade-in-up stagger-1">
+            Discover deeper meaning in sacred texts and spiritual wisdom with AI-powered analysis
           </p>
-          <Button
-            onClick={() => smoothScrollTo("analyzer")}
-            size="lg"
-            className="bg-white text-purple-700 hover:bg-purple-100 animate-fade-in delay-500"
-          >
-            Analyze Your Quote
-          </Button>
-        </div>
-
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <button
-            onClick={() => smoothScrollTo("analyzer")}
-            className="text-white flex flex-col items-center opacity-80 hover:opacity-100 transition-opacity"
-          >
-            <span className="mb-2">Begin</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up stagger-2">
+            <Button
+              onClick={() => smoothScrollTo("analyzer")}
+              size="lg"
+              className="bg-white text-purple-700 hover:bg-purple-100 px-8 py-3 animate-button-pulse"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </button>
+              Start Your Journey
+            </Button>
+            <Button
+              onClick={() => smoothScrollTo("features")}
+              size="lg"
+              variant="outline"
+              className="border-2 border-white text-white hover:bg-white hover:text-purple-700 px-8 py-3 transition-all duration-300 hover:scale-105 bg-transparent backdrop-blur-sm"
+            >
+              Explore Features
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section
+        id="features"
+        className="py-20 px-4 bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 animate-on-scroll"
+      >
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <div className="flex justify-center mb-6">
+              <Star className="h-12 w-12 text-white animate-spiritual-float" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 stagger-child">
+              Spiritual Analysis Features
+            </h2>
+            <p className="text-xl text-purple-100 max-w-3xl mx-auto stagger-child">
+              Discover deeper meaning in sacred texts, spiritual quotes, and wisdom literature
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="bg-purple-500/20 border-purple-400/30 backdrop-blur-sm text-white stagger-child hover:bg-purple-500/30 transition-all duration-300 hover:scale-105">
+              <CardHeader className="text-center pb-4">
+                <div className="mx-auto mb-4 p-3 bg-purple-400/30 rounded-full w-fit">
+                  <Brain className="h-8 w-8" />
+                </div>
+                <CardTitle className="text-xl">Sentiment Analysis</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-purple-100">
+                  Analyze the emotional and spiritual tone of sacred texts, prayers, and inspirational quotes
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-purple-500/20 border-purple-400/30 backdrop-blur-sm text-white stagger-child hover:bg-purple-500/30 transition-all duration-300 hover:scale-105">
+              <CardHeader className="text-center pb-4">
+                <div className="mx-auto mb-4 p-3 bg-purple-400/30 rounded-full w-fit">
+                  <Sparkles className="h-8 w-8" />
+                </div>
+                <CardTitle className="text-xl">Theme Detection</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-purple-100">
+                  Identify spiritual themes, biblical concepts, and theological insights within your text
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-purple-500/20 border-purple-400/30 backdrop-blur-sm text-white stagger-child hover:bg-purple-500/30 transition-all duration-300 hover:scale-105">
+              <CardHeader className="text-center pb-4">
+                <div className="mx-auto mb-4 p-3 bg-purple-400/30 rounded-full w-fit">
+                  <TrendingUp className="h-8 w-8" />
+                </div>
+                <CardTitle className="text-xl">Growth Insights</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-purple-100">
+                  Receive personalized recommendations for spiritual growth and deeper faith understanding
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-purple-500/20 border-purple-400/30 backdrop-blur-sm text-white stagger-child hover:bg-purple-500/30 transition-all duration-300 hover:scale-105">
+              <CardHeader className="text-center pb-4">
+                <div className="mx-auto mb-4 p-3 bg-purple-400/30 rounded-full w-fit">
+                  <Target className="h-8 w-8" />
+                </div>
+                <CardTitle className="text-xl">Quadrant Mapping</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-purple-100">
+                  Visualize spiritual content across faith-doubt and hope-despair dimensions
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Spiritual Journey Section */}
+      <section className="py-12 px-4 bg-gradient-to-b from-white to-purple-50 animate-on-scroll">
+        <div className="container mx-auto max-w-4xl text-center">
+          <div className="mb-12">
+            <BookOpen className="h-16 w-16 text-purple-600 mx-auto mb-6 animate-spiritual-float" />
+            <h2 className="text-4xl md:text-5xl font-bold text-purple-800 mb-6 stagger-child">
+              Begin Your
+              <br />
+              <span className="text-purple-600">Spiritual Journey</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto stagger-child">
+              Enter a meaningful verse, prayer, or spiritual quote to discover its deeper meaning and significance
+            </p>
+          </div>
         </div>
       </section>
 
       {/* Analyzer Section */}
       <section
         id="analyzer"
-        className="py-20 px-4 min-h-screen flex items-center justify-center bg-white"
+        className="py-8 px-4 pt-32 min-h-screen flex items-center justify-center bg-white animate-on-scroll"
       >
         <div className="container max-w-4xl">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-purple-800 mb-4">Analyze Your Quote</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Enter a religious or philosophical quote below to discover its spiritual meaning, emotional impact, and
-              practical wisdom.
+            <h2 className="text-3xl md:text-4xl font-bold text-purple-800 mb-4 stagger-child">Quote Analysis</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto stagger-child">
+              Enter your quote or spiritual passage for comprehensive analysis
             </p>
           </div>
 
-          <Card className="shadow-lg border-purple-100">
+          <Card className="shadow-lg border-purple-100 stagger-child">
             <CardHeader>
               <CardTitle className="text-purple-800">Faith Quotient Analysis</CardTitle>
               <CardDescription>
@@ -260,20 +418,20 @@ export default function FaithAnalyzer() {
             <CardContent className="space-y-6">
               <div>
                 <label htmlFor="quote" className="block text-sm font-medium text-gray-700 mb-1">
-                  Enter your quote
+                  Enter your quote or spiritual passage for comprehensive analysis
                 </label>
                 <Textarea
                   id="quote"
-                  placeholder="Enter a religious or philosophical quote..."
+                  placeholder="Enter a Bible verse, spiritual quote, prayer, or inspirational passage..."
                   className="min-h-32 border-purple-200 focus:border-purple-500 focus:ring-purple-500"
                   value={quote}
                   onChange={(e) => setQuote(e.target.value)}
                 />
               </div>
-              
+
               <div>
                 <label htmlFor="religion" className="block text-sm font-medium text-gray-700 mb-1">
-                  Select Religion/Tradition (Optional)
+                  Religious Context
                 </label>
                 <Select value={selectedReligion} onValueChange={setSelectedReligion}>
                   <SelectTrigger className="w-full">
@@ -291,16 +449,16 @@ export default function FaithAnalyzer() {
 
               <Button
                 onClick={handleAnalyze}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3"
                 disabled={isAnalyzing || !quote.trim()}
               >
                 {isAnalyzing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Analyzing...
+                    Analyze Spiritual Content
                   </>
                 ) : (
-                  "Analyze Quote"
+                  "Analyze Spiritual Content"
                 )}
               </Button>
             </CardContent>
@@ -309,7 +467,7 @@ export default function FaithAnalyzer() {
       </section>
 
       {/* Results Section */}
-      <section id="results" className="py-20 px-4 min-h-screen bg-purple-50">
+      <section id="results" className="py-8 px-4 pt-32 min-h-screen bg-purple-50 animate-on-scroll">
         <div className="container max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-purple-800 mb-4">Analysis Results</h2>
@@ -330,7 +488,7 @@ export default function FaithAnalyzer() {
                 </CardHeader>
                 <CardContent>
                   <div className="prose max-w-none">
-                    <div dangerouslySetInnerHTML={{ __html: analysisResult.analysis?.section1 || '' }} />
+                    <div dangerouslySetInnerHTML={{ __html: analysisResult.analysis?.section1 || "" }} />
                   </div>
                 </CardContent>
               </Card>
@@ -350,22 +508,34 @@ export default function FaithAnalyzer() {
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead>
                           <tr>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Positive Soul (PS)</th>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Negative Soul (NS)</th>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Positive Materialism (PM)</th>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Negative Materialism (NM)</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Positive Soul (PS)
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Negative Soul (NS)
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Positive Materialism (PM)
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Negative Materialism (NM)
+                            </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                          {analysisResult.analysis?.section2?.table1?.map((row, index) => (
-                            <tr key={index}>
-                              {Object.values(row).map((cell, cellIndex) => (
-                                <td key={cellIndex} className="px-3 py-2 whitespace-normal text-sm">
-                                  {String(cell)}
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
+                          {analysisResult.analysis?.section2?.table1 &&
+                            (Array.isArray(analysisResult.analysis.section2.table1)
+                              ? analysisResult.analysis.section2.table1
+                              : [analysisResult.analysis.section2.table1]
+                            ).map((row, index) => (
+                              <tr key={index}>
+                                {Object.values(row).map((cell, cellIndex) => (
+                                  <td key={cellIndex} className="px-3 py-2 whitespace-normal text-sm">
+                                    {String(cell)}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
                         </tbody>
                       </table>
                     </div>
@@ -387,22 +557,34 @@ export default function FaithAnalyzer() {
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead>
                           <tr>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Moral Discipline</th>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Spiritual Alignment</th>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mental Well-being</th>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Practical Challenge</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Moral Discipline
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Spiritual Alignment
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Mental Well-being
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Practical Challenge
+                            </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                          {analysisResult.analysis?.section2?.table2?.map((row, index) => (
-                            <tr key={index}>
-                              {Object.values(row).map((cell, cellIndex) => (
-                                <td key={cellIndex} className="px-3 py-2 whitespace-normal text-sm">
-                                  {String(cell)}
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
+                          {analysisResult.analysis?.section2?.table2 &&
+                            (Array.isArray(analysisResult.analysis.section2.table2)
+                              ? analysisResult.analysis.section2.table2
+                              : [analysisResult.analysis.section2.table2]
+                            ).map((row, index) => (
+                              <tr key={index}>
+                                {Object.values(row).map((cell, cellIndex) => (
+                                  <td key={cellIndex} className="px-3 py-2 whitespace-normal text-sm">
+                                    {String(cell)}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
                         </tbody>
                       </table>
                     </div>
@@ -420,7 +602,7 @@ export default function FaithAnalyzer() {
                 </CardHeader>
                 <CardContent>
                   <div className="prose max-w-none">
-                    <div dangerouslySetInnerHTML={{ __html: analysisResult.analysis?.section3 || '' }} />
+                    <div dangerouslySetInnerHTML={{ __html: analysisResult.analysis?.section3 || "" }} />
                   </div>
                 </CardContent>
               </Card>
@@ -433,31 +615,81 @@ export default function FaithAnalyzer() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-purple-900 text-white py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-6 md:mb-0">
-              <h3 className="text-xl font-bold">Faith Quotient Analyzer</h3>
-              <p className="mt-2 text-purple-200">Exploring the spiritual dimensions of wisdom</p>
+      {/* About Section */}
+      <section id="about" className="py-8 px-4 pt-32 bg-white animate-on-scroll">
+        <div className="container mx-auto max-w-4xl text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-purple-800 mb-8 stagger-child">About FaithFlow</h2>
+          <p className="text-lg text-gray-600 mb-8 stagger-child">
+            FaithFlow combines cutting-edge AI technology with deep spiritual wisdom to help you explore the profound
+            meanings within religious texts, prayers, and inspirational quotes.
+          </p>
+          <div className="grid md:grid-cols-3 gap-8 mt-12">
+            <div className="stagger-child">
+              <Globe className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-purple-800 mb-2">Global Reach</h3>
+              <p className="text-gray-600">
+                Supporting multiple religious traditions and spiritual practices worldwide
+              </p>
             </div>
-            <div className="flex space-x-6">
-              <a href="#" className="text-purple-200 hover:text-white transition-colors">
-                About
-              </a>
-              <a href="#" className="text-purple-200 hover:text-white transition-colors">
-                Privacy
-              </a>
-              <a href="#" className="text-purple-200 hover:text-white transition-colors">
-                Terms
-              </a>
-              <a href="#" className="text-purple-200 hover:text-white transition-colors">
-                Contact
-              </a>
+            <div className="stagger-child">
+              <Lightbulb className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-purple-800 mb-2">AI-Powered Insights</h3>
+              <p className="text-gray-600">Advanced analysis revealing deeper spiritual meanings and connections</p>
+            </div>
+            <div className="stagger-child">
+              <Heart className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-purple-800 mb-2">Spiritual Growth</h3>
+              <p className="text-gray-600">Personalized guidance for your unique spiritual journey and development</p>
             </div>
           </div>
-          <div className="mt-8 pt-8 border-t border-purple-800 text-center text-purple-300 text-sm">
-            &copy; {new Date().getFullYear()} Faith Quotient Analyzer. All rights reserved.
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-purple-900 text-white py-16">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-3 gap-8 mb-8">
+            {/* Brand Section */}
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <Heart className="h-6 w-6 text-purple-300" />
+                <span className="text-xl font-bold">FaithFlow</span>
+              </div>
+              <p className="text-purple-200 mb-4">
+                Empowering spiritual growth through AI-powered analysis of sacred texts, prayers, and inspirational
+                content.
+              </p>
+              <div className="flex items-center space-x-2">
+                <Globe className="h-4 w-4 text-purple-300" />
+                <span className="text-sm text-purple-300">Global Reach</span>
+              </div>
+            </div>
+
+            {/* Features Column */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Features</h3>
+              <ul className="space-y-2 text-purple-200">
+                <li>Spiritual Sentiment Analysis</li>
+                <li>Biblical Theme Detection</li>
+                <li>Faith Insights</li>
+                <li>Spiritual Growth Guidance</li>
+              </ul>
+            </div>
+
+            {/* Company Column */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Company</h3>
+              <ul className="space-y-2 text-purple-200">
+                <li>About Us</li>
+                <li>Privacy Policy</li>
+                <li>Terms of Service</li>
+                <li>Contact</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-purple-800 pt-8 text-center">
+            <p className="text-purple-300 text-sm">© 2025 FaithFlow. All rights reserved.</p>
           </div>
         </div>
       </footer>
