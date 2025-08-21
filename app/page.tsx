@@ -5,20 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import {
-  Heart,
-  Brain,
-  Sparkles,
-  TrendingUp,
-  BookOpen,
-  Lightbulb,
-  Target,
-  Globe,
-  Menu,
-  X,
-  Loader2,
-  Star,
-} from "lucide-react"
+import { Heart, Brain, Sparkles, TrendingUp, BookOpen, Target, Globe, Menu, X, Loader2 } from "lucide-react"
 
 interface AnalysisResponse {
   quote: string
@@ -206,7 +193,12 @@ export default function FaithAnalyzer() {
                 Analyzer
               </button>
               <button
-                onClick={() => smoothScrollTo("about")}
+                onClick={() => {
+                  const footer = document.querySelector("footer")
+                  if (footer) {
+                    footer.scrollIntoView({ behavior: "smooth", block: "start" })
+                  }
+                }}
                 className={`transition-all duration-300 hover:scale-105 font-medium ${
                   navbarOnWhite ? "text-purple-800 hover:text-purple-600" : "text-white hover:text-purple-300"
                 }`}
@@ -250,7 +242,13 @@ export default function FaithAnalyzer() {
                   Analyzer
                 </button>
                 <button
-                  onClick={() => smoothScrollTo("about")}
+                  onClick={() => {
+                    const footer = document.querySelector("footer")
+                    if (footer) {
+                      footer.scrollIntoView({ behavior: "smooth", block: "start" })
+                    }
+                    setMobileMenuOpen(false)
+                  }}
                   className="text-gray-700 hover:text-purple-600 transition-colors text-left"
                 >
                   About
@@ -307,9 +305,7 @@ export default function FaithAnalyzer() {
       >
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
-            <div className="flex justify-center mb-6">
-              <Star className="h-12 w-12 text-white animate-spiritual-float" />
-            </div>
+            <div className="flex justify-center mb-6"></div>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 stagger-child">
               Spiritual Analysis Features
             </h2>
@@ -378,23 +374,6 @@ export default function FaithAnalyzer() {
         </div>
       </section>
 
-      {/* Spiritual Journey Section */}
-      <section className="py-12 px-4 bg-gradient-to-b from-white to-purple-50 animate-on-scroll">
-        <div className="container mx-auto max-w-4xl text-center">
-          <div className="mb-12">
-            <BookOpen className="h-16 w-16 text-purple-600 mx-auto mb-6 animate-spiritual-float" />
-            <h2 className="text-4xl md:text-5xl font-bold text-purple-800 mb-6 stagger-child">
-              Begin Your
-              <br />
-              <span className="text-purple-600">Spiritual Journey</span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto stagger-child">
-              Enter a meaningful verse, prayer, or spiritual quote to discover its deeper meaning and significance
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* Analyzer Section */}
       <section
         id="analyzer"
@@ -411,9 +390,7 @@ export default function FaithAnalyzer() {
           <Card className="shadow-lg border-purple-100 stagger-child">
             <CardHeader>
               <CardTitle className="text-purple-800">Faith Quotient Analysis</CardTitle>
-              <CardDescription>
-                Our AI will analyze your quote using the PASSIONIT PRUTL framework to reveal its spiritual dimensions.
-              </CardDescription>
+              
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
@@ -422,7 +399,7 @@ export default function FaithAnalyzer() {
                 </label>
                 <Textarea
                   id="quote"
-                  placeholder="Enter a Bible verse, spiritual quote, prayer, or inspirational passage..."
+                  placeholder="Enter Spiritual or philosophical quote"
                   className="min-h-32 border-purple-200 focus:border-purple-500 focus:ring-purple-500"
                   value={quote}
                   onChange={(e) => setQuote(e.target.value)}
@@ -615,47 +592,17 @@ export default function FaithAnalyzer() {
         </div>
       </section>
 
-      {/* About Section */}
-      <section id="about" className="py-8 px-4 pt-32 bg-white animate-on-scroll">
-        <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-purple-800 mb-8 stagger-child">About FaithFlow</h2>
-          <p className="text-lg text-gray-600 mb-8 stagger-child">
-            FaithFlow combines cutting-edge AI technology with deep spiritual wisdom to help you explore the profound
-            meanings within religious texts, prayers, and inspirational quotes.
-          </p>
-          <div className="grid md:grid-cols-3 gap-8 mt-12">
-            <div className="stagger-child">
-              <Globe className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-purple-800 mb-2">Global Reach</h3>
-              <p className="text-gray-600">
-                Supporting multiple religious traditions and spiritual practices worldwide
-              </p>
-            </div>
-            <div className="stagger-child">
-              <Lightbulb className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-purple-800 mb-2">AI-Powered Insights</h3>
-              <p className="text-gray-600">Advanced analysis revealing deeper spiritual meanings and connections</p>
-            </div>
-            <div className="stagger-child">
-              <Heart className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-purple-800 mb-2">Spiritual Growth</h3>
-              <p className="text-gray-600">Personalized guidance for your unique spiritual journey and development</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Footer */}
-      <footer className="bg-purple-900 text-white py-16">
+      <footer className="bg-purple-900 text-white py-8">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8 mb-8">
+          <div className="grid md:grid-cols-3 gap-6 mb-6">
             {/* Brand Section */}
             <div>
-              <div className="flex items-center space-x-2 mb-4">
+              <div className="flex items-center space-x-2 mb-3">
                 <Heart className="h-6 w-6 text-purple-300" />
                 <span className="text-xl font-bold">FaithFlow</span>
               </div>
-              <p className="text-purple-200 mb-4">
+              <p className="text-purple-200 mb-3 text-sm">
                 Empowering spiritual growth through AI-powered analysis of sacred texts, prayers, and inspirational
                 content.
               </p>
@@ -667,8 +614,8 @@ export default function FaithAnalyzer() {
 
             {/* Features Column */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">Features</h3>
-              <ul className="space-y-2 text-purple-200">
+              <h3 className="text-lg font-semibold mb-3">Features</h3>
+              <ul className="space-y-1 text-purple-200 text-sm">
                 <li>Spiritual Sentiment Analysis</li>
                 <li>Biblical Theme Detection</li>
                 <li>Faith Insights</li>
@@ -678,8 +625,8 @@ export default function FaithAnalyzer() {
 
             {/* Company Column */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">Company</h3>
-              <ul className="space-y-2 text-purple-200">
+              <h3 className="text-lg font-semibold mb-3">Company</h3>
+              <ul className="space-y-1 text-purple-200 text-sm">
                 <li>About Us</li>
                 <li>Privacy Policy</li>
                 <li>Terms of Service</li>
@@ -688,7 +635,11 @@ export default function FaithAnalyzer() {
             </div>
           </div>
 
-          <div className="border-t border-purple-800 pt-8 text-center">
+          <div className="border-t border-purple-800 pt-6 text-center">
+            <div className="mb-3">
+              <p className="text-purple-200 text-sm mb-1">Developed by</p>
+              <p className="text-white font-medium">Aditya Katkar & Kanish Rawal</p>
+            </div>
             <p className="text-purple-300 text-sm">© 2025 FaithFlow. All rights reserved.</p>
           </div>
         </div>
