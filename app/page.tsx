@@ -557,11 +557,11 @@ export default function FaithAnalyzer() {
                   <div className="mx-auto mb-4 p-3 bg-emerald-400/30 rounded-full w-fit">
                     <TrendingUp className="h-8 w-8" />
                   </div>
-                  <CardTitle className="text-xl">Growth Insights</CardTitle>
+                  <CardTitle className="text-xl">PASSIONIT PRUTL Analysis</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
                   <p className="text-emerald-100">
-                    Receive personalized recommendations for spiritual growth and deeper faith understanding
+                    Advanced analytical framework for comprehensive spiritual text evaluation and meaningful insights
                   </p>
                 </CardContent>
               </Card>
