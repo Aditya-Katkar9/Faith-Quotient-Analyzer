@@ -2,7 +2,6 @@
 
 Welcome to the **Faith-Quotient Analyzer**, a full-stack application designed to explore the depths of religious and philosophical wisdom. Using the power of Google's Gemini AI, this tool provides profound spiritual insights, sentiment analysis, and thematic interpretations of quotes and passages.
 
-**To see the live application, you can go here: [Faith-Quotient Analyzer Live](https://your-deployment-url.com)**
 
 ---
 
