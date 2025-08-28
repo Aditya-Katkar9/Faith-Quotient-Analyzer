@@ -561,7 +561,7 @@ export default function FaithAnalyzer() {
                 </CardHeader>
                 <CardContent className="text-center">
                   <p className="text-emerald-100">
-                    Advanced analytical framework for comprehensive spiritual text evaluation and meaningful insights
+                    Receive personalized recommendations for spiritual growth and deeper faith understanding
                   </p>
                 </CardContent>
               </Card>
