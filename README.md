@@ -125,6 +125,3 @@ The primary API endpoint for the application is:
 
 ---
 
-## 📜 License
-
-This project is licensed under the MIT License. See the `LICENSE` file for more details.
